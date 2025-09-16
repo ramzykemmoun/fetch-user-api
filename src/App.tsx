@@ -2,8 +2,8 @@ import { useState } from "react";
 import { useGetUsers } from "./lib/services/user";
 
 function App() {
-  const [limit] = useState(10);
-  const [skip] = useState(0);
+  const [limit, setLimit] = useState(10);
+  const [skip, setSkip] = useState(0);
   const [q, setQ] = useState("");
 
   const { data, error, isLoading } = useGetUsers({
@@ -12,14 +12,24 @@ function App() {
     q,
   });
 
-  console.log({ q });
+  function handlePrevious() {
+    if (skip > 0) {
+      setSkip((skip) => skip - limit);
+    }
+  }
+  function handleNext() {
+    setSkip((skip) => skip + limit);
+  }
   return (
     <div>
       <input
         type="text"
         placeholder="Search..."
         value={q}
-        onChange={(e) => setQ(e.target.value)}
+        onChange={(e) => {
+          setQ(e.target.value);
+          setSkip(0);
+        }}
       />
       {isLoading ? (
         <div>loading...</div>
@@ -33,6 +43,16 @@ function App() {
           </li>
         ))}
       </ul>
+
+      <div>
+        <button disabled={skip === 0} onClick={handlePrevious}>
+          Previous
+        </button>
+        <button onClick={handleNext}>Next</button>
+      </div>
+      <div>Total: {data?.total}</div>
+      <div>Limit: {data?.limit}</div>
+      <div>Skip: {data?.skip}</div>
     </div>
   );
 }
